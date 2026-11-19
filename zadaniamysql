@@ -1,13 +1,14 @@
 -- zadanie 1
 
-create table `pracownik` (
+-- 		podpunkt 1
+create table `pracownik` ( 
 `id_pracownika` int primary key not null auto_increment,
 `imie` varchar(40) not null,
 `nazwisko` varchar(60) not null,
 `data_urodzenia` date not null
 );
 
-
+-- 		podpunkt 2 
 insert into `pracownik` (
 `imie`,
 `nazwisko`,
@@ -17,27 +18,34 @@ insert into `pracownik` (
 ('kamil', 'kolanko', '1909-04-15'),
 ('kamil', 'slimak', '2078-12-01');
 
+
+-- 		podpunkt 3
 update `pracownik`
 set `data_urodzenia` = '2000-01-01'
 where `nazwisko` = 'kowalenko';
+
+
 
 select * from `pracownik`;
 drop table `pracownik`;
 
 -- zadanie 2
 
+
+-- 		podpunkt 1
 create table `zadanie` (
 `id_zadania` int primary key not null auto_increment,
 `nazwa_zadania` varchar(150) not null,
 `priorytet` enum('normalny','wysoki', 'niski'),
 `opis` longtext,
-`pracownik` int,
-foreign key (`pracownik`) references pracownik(`id_pracownika`)
+`pracownik` int, foreign key (`pracownik`) references pracownik(`id_pracownika`) on delete cascade
 );
 
+-- 		podpunkt 2
 alter table `zadanie` alter column `priorytet` set default 'normalny';
 
 
+-- 		podpunkt 3
 insert into `zadanie` (
 `nazwa_zadania`,
 `opis`,
@@ -52,6 +60,8 @@ drop table `zadanie`;
 
 -- zadanie 3 
 
+
+-- 		podpunkt 1
 create table `projekt` (
 `id_projektu` int primary key not null auto_increment,
 `nazwa_projektu` varchar(150) not null,
@@ -59,9 +69,12 @@ create table `projekt` (
 `data_zakonczenia` date
 );
 
+-- 		podpunkt 2
 alter table `projekt` add column `menedzer_projektu` int not null,
-add constraint `fk_pracownik` foreign key (`menedzer_projektu`) references pracownik(`id_pracownika`);
+add constraint `fk_pracownik` foreign key (`menedzer_projektu`) references pracownik(`id_pracownika`) on delete cascade;
 
+
+-- 		podpunkt 3
 insert into `projekt`(
 `nazwa_projektu`,
 `data_rozpoczecia`,
@@ -70,9 +83,12 @@ insert into `projekt`(
 ('projekt 1', '1000-01-01', 1),
 ('projekt 2', '2000-02-02', 3);
 
+
+-- 		podpunkt 4
 alter table `zadanie` add column `projekt` int,
 add constraint `fk_projekt` foreign key (`projekt`) references projekt(`id_projektu`) on delete cascade;
 
+-- 		podpunkt 5
 update `zadanie`
 set `projekt` = 1 where `projekt` is null;
 
@@ -82,6 +98,8 @@ drop table `projekt`;
 
 -- zadanie 4 
 
+
+-- 		podpunkt 1
 create table `sprint` (
 `id_sprintu` int primary key not null auto_increment,
 `numer_sprintu` int unsigned not null,
@@ -89,9 +107,12 @@ create table `sprint` (
 `data_zakonczenia` date
 );
 
+-- 		podpunkt 2
 alter table `zadanie` add column `sprint` int,
-add constraint `fk_sprint` foreign key (`sprint`) references sprint(`id_sprintu`) on delete set null;
+add constraint `fk_sprint` foreign key (`sprint`) references sprint(`id_sprintu`) on delete cascade;
 
+
+-- 		podpunkt 3
 insert into `sprint` (
 `numer_sprintu`,
 `data_rozpoczecia`
@@ -99,3 +120,57 @@ insert into `sprint` (
 values 
 (1, '2000-10-01'),
 (2, '2001-09-02');
+
+
+select * from `sprint`;
+drop table `sprint`;
+
+
+
+-- zadanie 5
+
+-- 		podpunkt 1
+create table `status` (
+`id_statusu` int primary key auto_increment,
+`nazwa_statusu` varchar(20)
+);
+
+
+-- 		podpunkt 2
+insert into `status` (`nazwa_statusu`) 
+values ("status 1"),
+		("status 2"),
+		("status 3")
+;
+
+
+-- 		podpunkt 3
+create table `zadanie_has_status`(
+`id_zdarzenia` int primary key auto_increment,
+`id_zadania` int, constraint `fk_zadanie` foreign key (`id_zadania`) references zadanie(`id_zadania`) on delete cascade,
+`id_statusu` int, constraint `fk_status` foreign key (`id_statusu`) references `status`(`id_statusu`) on delete cascade,
+`data_zdarzenia` datetime default current_timestamp
+);
+
+-- 		podpunkt 4
+insert into `zadanie_has_status` (`id_zadania`, `id_statusu`)
+values 							 (	   1      ,       1     ),
+								 (	   2      ,       2     ),
+                                 (	   3      ,       3     );
+
+
+-- 		podpunkt 5
+select * from `zadanie`; -- przed
+delete from `projekt` where `id_projektu` = 1;
+select * from `zadanie`; -- po
+
+-- 		podpunkt 6
+drop table `sprint`;
+
+
+
+select * from `status`;
+drop table `status`;
+
+select * from `zadanie_has_status`;
+drop table `zadanie_has_status`;
